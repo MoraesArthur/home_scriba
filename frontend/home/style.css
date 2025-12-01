@@ -1,0 +1,143 @@
+/* --- Reset e Configurações Globais --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --azul-profundo: #1a222e;
+    --bege-papel: #e6dac3;
+    --bege-claro-hover: rgba(230, 218, 195, 0.1); /* Cor para hover nos menus */
+}
+
+body {
+    font-family: 'Lato', sans-serif;
+    height: 100vh; /* Ocupa 100% da altura da tela */
+    display: flex; /* Layout Flex para dividir a tela em duas colunas */
+    overflow: hidden; /* Evita rolagens indesejadas na janela principal */
+}
+
+
+/* --- BARRA LATERAL (SIDEBAR) - Esquerda --- */
+.sidebar {
+    width: 280px; /* Largura fixa da barra lateral */
+    background-color: var(--azul-profundo);
+    color: var(--bege-papel);
+    padding: 40px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Empurra o topo para cima e o perfil para baixo */
+    flex-shrink: 0; /* Garante que a sidebar não diminua se a tela for pequena */
+}
+
+
+/* -- Topo da Sidebar (Logo e Menu) -- */
+.brand-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 60px; /* Espaço abaixo do logo */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.main-nav ul {
+    list-style: none;
+}
+
+.main-nav li {
+    margin-bottom: 15px;
+}
+
+.main-nav a {
+    text-decoration: none;
+    color: var(--bege-papel);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: background-color 0.3s, padding-left 0.3s;
+}
+
+/* Ícones do menu */
+.main-nav a i {
+    width: 30px; /* Largura fixa para os ícones alinharem o texto verticalmente */
+    font-size: 1.2rem;
+}
+
+/* Efeito de Hover e Item Ativo */
+.main-nav a:hover,
+.main-nav li.active a {
+    background-color: var(--bege-claro-hover);
+    padding-left: 20px; /* Pequeno movimento para a direita */
+}
+
+/* -- Parte Inferior (Perfil e Sair) -- */
+.sidebar-bottom {
+    margin-top: auto; /* Garante que fique no rodapé da sidebar */
+}
+
+/* Perfil do Usuário */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(230, 218, 195, 0.2); /* Linha divisória sutil */
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /* Deixa a imagem redonda */
+    object-fit: cover;
+    border: 2px solid var(--bege-papel);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.user-handle {
+    font-size: 0.85rem;
+    opacity: 0.7; /* Deixa o @usuario um pouco mais transparente */
+}
+
+/* Botão Sair */
+.logout-link {
+    text-decoration: none;
+    color: var(--bege-papel);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    transition: opacity 0.3s;
+}
+
+.logout-link i {
+    width: 30px;
+    transform: rotate(180deg); /* Gira o ícone para apontar para a esquerda */
+}
+
+.logout-link:hover {
+    opacity: 0.7;
+}
+
+
+/* --- ÁREA PRINCIPAL (MAIN CONTENT) - Direita --- */
+.main-content {
+    flex: 1; /* Ocupa todo o espaço restante */
+    background-color: var(--bege-papel);
+    padding: 40px;
+    overflow-y: auto; /* Permite rolagem apenas dentro desta área se o conteúdo for longo */
+}

@@ -1,0 +1,164 @@
+/* Reset Básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Lato', sans-serif;
+    overflow: hidden;
+}
+
+/* --- Variáveis de Cor (para facilitar leitura) --- */
+:root {
+    --azul-profundo: #1a222e;
+    --bege-papel: #e6dac3;
+}
+
+/* --- Elemento da Logo (Tag Suspensa) --- */
+.logo-tag {
+    position: absolute;
+    top: 0;
+    left: 15%;
+    width: 80px;
+    height: 120px;
+    /* Invertido: Fundo Bege no topo Azul */
+    background-color: var(--bege-papel);
+    color: var(--azul-profundo);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4); /* Sombra um pouco mais forte */
+    z-index: 10;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+/* --- Seção Principal (Agora AZUL) --- */
+.hero-section {
+    background-color: var(--azul-profundo); /* Mudança Principal */
+    flex: 7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.hero-content {
+    max-width: 800px;
+    padding: 20px;
+    animation: fadeIn 1s ease-out;
+}
+
+.main-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem;
+    font-weight: 700;
+    /* Texto agora é Bege para leitura no fundo escuro */
+    color: var(--bege-papel);
+    margin-bottom: 10px;
+    letter-spacing: -2px;
+}
+
+.subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-style: italic;
+    color: var(--bege-papel);
+    opacity: 0.8; /* Leve transparência para hierarquia visual */
+    margin-bottom: 50px;
+}
+
+/* Botões */
+.cta-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+.btn-primary {
+    /* Botão Bege no fundo Azul */
+    background-color: var(--bege-papel);
+    color: var(--azul-profundo);
+
+    padding: 15px 50px;
+    font-family: 'Lato', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700; /* Negrito para leitura melhor */
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    background-color: #fff; /* Fica branco ao passar o mouse */
+}
+
+.btn-link {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--bege-papel); /* Link bege */
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-link:hover {
+    opacity: 0.7;
+}
+
+/* --- Seção Inferior (Continua Bege) --- */
+.info-footer {
+    background-color: var(--bege-papel);
+    flex: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    border-top: 1px solid rgba(26, 34, 46, 0.1); /* Divisória sutil */
+}
+
+.info-text p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    /* Texto escuro no fundo claro */
+    color: var(--azul-profundo);
+    text-align: center;
+    line-height: 1.6;
+    font-style: italic;
+    max-width: 900px;
+}
+
+.info-text strong {
+    font-weight: 700;
+    font-style: normal;
+    /* Destaque sutil com borda inferior ou apenas cor */
+    border-bottom: 2px solid var(--azul-profundo);
+}
+
+/* Animação */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .main-title { font-size: 4rem; }
+    .subtitle { font-size: 1.5rem; }
+    .logo-tag { left: 50%; transform: translateX(-50%); width: 60px; height: 90px; font-size: 1.8rem; }
+    .info-text p { font-size: 1.2rem; }
+}
