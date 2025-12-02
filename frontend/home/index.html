@@ -56,7 +56,7 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            
+
             <!-- Top Bar -->
             <header class="top-bar">
                 <div class="header-greeting">
@@ -69,7 +69,7 @@
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="text" placeholder="Buscar livros..." class="search-input">
                     </div>
-                    
+
                     <button class="btn-add-book" id="openModalBtn">
                         <i class="fa-solid fa-plus"></i>
                         <span>Novo Livro</span>
@@ -79,42 +79,15 @@
 
             <!-- Área Dinâmica -->
             <div id="dynamic-content">
-                
+
                 <!-- SEÇÃO HOME -->
                 <section id="section-home" class="content-section active">
                     <h1 class="welcome-title">Bem-vindo de volta, <span class="user-name-title">Leitor</span>.</h1>
-                    
-                    <div class="dashboard-card hero-card">
-                        <div class="card-content-wrapper">
-                            <div class="book-cover-placeholder">
-                                <img src="https://m.media-amazon.com/images/I/91G38N3i2QL._AC_UF1000,1000_QL80_.jpg" alt="Capa">
-                            </div>
-                            <div class="book-details">
-                                <span class="status-tag">Lendo Atualmente</span>
-                                <h2 class="book-title">One Piece: Volume 100</h2>
-                                <p class="book-author">Eiichiro Oda</p>
-                                
-                                <div class="reading-progress-container">
-                                    <div class="progress-labels">
-                                        <span>Progresso</span>
-                                        <span>75%</span>
-                                    </div>
-                                    <div class="progress-bar-bg">
-                                        <div class="progress-bar-fill" style="width: 75%;"></div>
-                                    </div>
-                                    <p class="progress-text">Página 150 de 200</p>
-                                </div>
-                                <button class="continue-btn" id="btnUpdateProgress">Continuar Leitura <i class="fa-solid fa-pen-to-square" style="margin-left: 8px; font-size: 0.8em;"></i></button>
-                            </div>
-                        </div>
-                    </div>
 
-                    <h3 class="section-title">Adicionados Recentemente</h3>
-                    <div class="recent-books-grid">
-                        <div class="mini-book-card"></div>
-                        <div class="mini-book-card"></div>
-                        <div class="mini-book-card"></div>
-                        <div class="mini-book-card"></div>
+                    <div class="empty-state">
+                        <i class="fa-solid fa-book-open" style="font-size: 4rem; color: var(--color-accent-gold); margin-bottom: 20px;"></i>
+                        <h2>Sua biblioteca está vazia</h2>
+                        <p>Comece adicionando seus primeiros livros clicando no botão "Novo Livro" acima.</p>
                     </div>
                 </section>
 
@@ -155,7 +128,7 @@
                         <button class="btn-create-list" id="btnCreateList"><i class="fa-solid fa-folder-plus"></i> Nova Lista</button>
                     </div>
                     <p class="section-subtitle">Organize seus livros em coleções personalizadas.</p>
-                    
+
                     <div class="lists-grid" id="listsContainer">
                         <!-- JS Injeta as listas aqui -->
                     </div>
@@ -193,7 +166,7 @@
                     </div>
                     <div class="form-group">
                         <label>Categoria</label>
-                        <select id="inputCategoria">
+                        <select id="inputCategoria" required>
                             <option value="" disabled selected>Selecione...</option>
                             <option value="Fantasia">Fantasia</option>
                             <option value="Ficção Científica">Ficção Científica</option>
@@ -203,6 +176,18 @@
                             <option value="HQ">HQ/Mangá</option>
                             <option value="Outros">Outros</option>
                         </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>URL da Capa (opcional)</label>
+                    <input type="url" id="inputCover" placeholder="https://exemplo.com/capa.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <div class="status-options">
+                        <button type="button" class="status-btn" data-status="Quero Ler">Quero Ler</button>
+                        <button type="button" class="status-btn active" data-status="Lendo">Lendo</button>
+                        <button type="button" class="status-btn" data-status="Lido">Lido</button>
                     </div>
                 </div>
                 <button type="submit" class="submit-book-btn">Salvar Livro</button>
@@ -291,7 +276,7 @@
                 <h2 id="listDetailsTitle">Nome da Lista</h2>
                 <button class="close-modal-btn" id="closeListDetailsBtn"><i class="fa-solid fa-times"></i></button>
             </div>
-            
+
             <!-- Área para Adicionar Livro na Lista -->
             <div class="add-book-to-list-wrapper">
                 <select id="selectBookToAdd">
