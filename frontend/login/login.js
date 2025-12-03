@@ -4,19 +4,17 @@ const form = document.querySelector('form');
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const email = document.querySelector('#email').value;
+    const identifier = document.querySelector('#email').value; // pode ser email ou usuário
     const senha = document.querySelector('#password').value;
 
     try {
-        const response = await fetch('http://localhost:3000/api/login', {
+        const formData = new FormData();
+        formData.append('identifier', identifier);
+        formData.append('senha', senha);
+
+        const response = await fetch('http://localhost/scriba/home_scriba/api/login.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email,
-                senha
-            })
+            body: formData
         });
 
         const data = await response.json();
@@ -30,7 +28,6 @@ form.addEventListener('submit', async (e) => {
             alert(data.message || 'Email ou senha incorretos');
         }
     } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao conectar com o servidor. Certifique-se de que o backend está rodando.');
+        alert('Erro ao conectar com o servidor.');
     }
 });
