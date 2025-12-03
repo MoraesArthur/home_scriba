@@ -48,6 +48,7 @@ if ($method === 'POST') {
     $autor = $_POST['autor'] ?? '';
     $genre = $_POST['genre'] ?? '';
     $paginas = $_POST['paginas'] ?? null;
+    $current_page = $_POST['current_page'] ?? 0;
     $status = $_POST['status'] ?? 'Quero Ler';
     $capa = $_POST['capa'] ?? '';
 
@@ -59,8 +60,8 @@ if ($method === 'POST') {
         exit;
     }
 
-    $stmt = $conn->prepare("INSERT INTO livros (user_id, titulo, autor, genre, paginas, status, capa) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isssiis", $user_id, $titulo, $autor, $genre, $paginas, $status, $capa);
+    $stmt = $conn->prepare("INSERT INTO livros (user_id, titulo, autor, genre, paginas, current_page, status, capa) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("isssiiss", $user_id, $titulo, $autor, $genre, $paginas, $current_page, $status, $capa);
     $stmt->execute();
 
     $livro_id = $conn->insert_id;

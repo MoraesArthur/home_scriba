@@ -106,8 +106,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 targetSection.classList.remove('hidden');
                 setTimeout(() => targetSection.classList.add('active'), 10);
 
-                // Limpa o campo de busca ao trocar de aba
+                // Mostrar/ocultar o campo de busca no topo dependendo da aba
+                const searchContainer = document.getElementById('headerSearch') || document.querySelector('.search-container');
                 const searchInput = document.querySelector('.search-input');
+                if (searchContainer) {
+                    if (targetId === 'section-books') searchContainer.classList.remove('hidden');
+                    else searchContainer.classList.add('hidden');
+                }
+                // Limpa o campo de busca ao trocar para outra aba
                 if (searchInput && targetId !== 'section-books') {
                     searchInput.value = '';
                 }
@@ -895,9 +901,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const activeStatusBtn = updateProgressForm.querySelector('.status-btn.active');
                 let newStatus = activeStatusBtn ? activeStatusBtn.getAttribute('data-status') : book.status;
 
-                // Se completou todas as páginas, muda automaticamente para "Lido"
-                if (book.totalPages > 0 && newPage >= book.totalPages) {
-                    newStatus = 'Lido';
+                // Ajusta status automaticamente com base na página informada:
+                // - Se >= totalPages -> 'Lido'
+                // - Se > 0 e < totalPages -> 'Lendo'
+                // - Se 0 -> mantém 'Quero Ler' (ou status atual)
+                if (book.totalPages > 0) {
+                    if (newPage >= book.totalPages) {
+                        newStatus = 'Lido';
+                    } else if (newPage > 0 && newPage < book.totalPages) {
+                        newStatus = 'Lendo';
+                    } else if (newPage === 0) {
+                        // se 0, não forçar mudança — manter o que estava (ex: 'Quero Ler')
+                        newStatus = book.status || newStatus;
+                    }
                 }
 
                 // Se concluiu, marca as páginas como total
@@ -1016,6 +1032,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 formData.append('autor', author);
                 formData.append('genre', genre);
                 formData.append('paginas', totalPages);
+                // Se o livro já for marcado como 'Lido', define a página atual como o total de páginas
+                const currentPageToSend = (status === 'Lido') ? totalPages : 0;
+                formData.append('current_page', currentPageToSend);
                 formData.append('status', status);
                 formData.append('capa', coverUrl);
 
@@ -1036,7 +1055,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         status: status,
                         cover: coverUrl,
                         totalPages: totalPages,
-                        currentPage: 0,
+                        currentPage: currentPageToSend,
                         lastUpdated: new Date().toISOString()
                     });
 

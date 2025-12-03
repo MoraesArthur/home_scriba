@@ -65,7 +65,7 @@
                 </div>
 
                 <div class="action-group">
-                    <div class="search-container">
+                    <div class="search-container hidden" id="headerSearch">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="text" placeholder="Buscar livros..." class="search-input">
                     </div>
@@ -95,12 +95,14 @@
                 <section id="section-books" class="content-section hidden">
                     <div class="section-header">
                         <h1 class="welcome-title">Minha Biblioteca</h1>
-                        <!-- Filtros (Agora Funcionais) -->
-                        <div class="filter-options" id="libraryFilters">
-                            <button class="filter-btn active" data-filter="Todos">Todos</button>
-                            <button class="filter-btn" data-filter="Lendo">Lendo</button>
-                            <button class="filter-btn" data-filter="Lido">Lidos</button>
-                            <button class="filter-btn" data-filter="Quero Ler">Quero Ler</button>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                                <!-- Filtros (Agora Funcionais) -->
+                            <div class="filter-options" id="libraryFilters">
+                                <button class="filter-btn active" data-filter="Todos">Todos</button>
+                                <button class="filter-btn" data-filter="Lendo">Lendo</button>
+                                <button class="filter-btn" data-filter="Lido">Lidos</button>
+                                <button class="filter-btn" data-filter="Quero Ler">Quero Ler</button>
+                            </div>
                         </div>
                     </div>
                     <div class="library-grid" id="libraryContainer">
