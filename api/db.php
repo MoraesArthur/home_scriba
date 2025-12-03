@@ -1,11 +1,6 @@
 <?php
 /**
  * Configuração de Conexão com MySQL
- *
- * INSTRUÇÕES:
- * 1. Copie este arquivo e renomeie para db.php
- * 2. Ajuste os valores abaixo conforme sua instalação
- * 3. O db.php está no .gitignore para proteger suas credenciais
  */
 
 // Configurações do banco de dados
