@@ -6,7 +6,7 @@ form.addEventListener('submit', async (e) => {
 
     const nome = document.querySelector('input[placeholder="Nome e Sobrenome"]').value;
     const usuario = document.querySelector('input[placeholder="Nome de Usuário"]').value;
-    const email = document.querySelector('input[type="email"]').value;
+    const email = document.querySelector('input[placeholder="Email"]').value;
     const senha = document.querySelector('input[placeholder="Senha"]').value;
     const confirmarSenha = document.querySelector('input[placeholder="Confirmar Senha"]').value;
 
@@ -17,17 +17,15 @@ form.addEventListener('submit', async (e) => {
     }
 
     try {
-        const response = await fetch('http://localhost:3000/api/cadastro', {
+        const formData = new FormData();
+        formData.append('usuario', usuario);
+        formData.append('nome', nome);
+        formData.append('email', email);
+        formData.append('senha', senha);
+
+        const response = await fetch('http://localhost/scriba/home_scriba/api/cadastro.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                nome,
-                usuario,
-                email,
-                senha
-            })
+            body: formData
         });
 
         const data = await response.json();
@@ -42,7 +40,6 @@ form.addEventListener('submit', async (e) => {
             alert(data.message || 'Erro ao realizar cadastro');
         }
     } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao conectar com o servidor. Certifique-se de que o backend está rodando.');
+        alert('Erro ao conectar com o servidor.');
     }
 });
