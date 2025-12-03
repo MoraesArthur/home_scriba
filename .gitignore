@@ -12,9 +12,6 @@ uploads/*.gif
 !uploads/capa_padrao_*.svg
 !uploads/.htaccess
 
-# Configurações locais do banco de dados
-api/db.php
-
 # Logs do PHP
 *.log
 error_log
