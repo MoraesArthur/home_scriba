@@ -1,0 +1,57 @@
+# ================================================
+# .gitignore - Scriba Project
+# ================================================
+
+# Uploads de usuários (imagens de capas)
+uploads/*.jpg
+uploads/*.jpeg
+uploads/*.png
+uploads/*.gif
+
+# Manter apenas as capas padrão SVG
+!uploads/capa_padrao_*.svg
+!uploads/.htaccess
+
+# Configurações locais do banco de dados
+api/db.php
+
+# Logs do PHP
+*.log
+error_log
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs e Editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+
+# Node modules (caso adicione build tools no futuro)
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+
+# Cache
+.cache/
+*.cache
+
+# Arquivos comprimidos
+*.zip
+*.rar
+*.7z
+*.tar.gz

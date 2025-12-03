@@ -1,163 +1,339 @@
-# Scriba - Sistema de Gerenciamento de Biblioteca Pessoal
+# 📚 Scriba - Sistema de Gerenciamento de Biblioteca Pessoal
+
+Um sistema completo de gerenciamento de leituras pessoais com interface intuitiva, controle de progresso e organização por status.
+
+## 🛠️ Tecnologias Utilizadas
+
+- **Backend**: PHP 8.2 com MySQLi
+- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
+- **Banco de Dados**: MySQL 8.0
+- **Servidor**: Apache 2.4 (XAMPP/LAMPP)
 
 ## 📁 Estrutura do Projeto
 
 ```
 home_scriba/
-├── backend/          # Servidor Node.js + Express
-│   ├── server.js
-│   ├── package.json
-│   └── .gitignore
-└── frontend/         # Páginas HTML/CSS/JS
-    ├── inicial/      # Página inicial
-    ├── cadastro/     # Página de cadastro
-    ├── login/        # Página de login
-    └── home/         # Dashboard principal
+├── api/                      # APIs PHP (Backend)
+│   ├── db.php               # Conexão com MySQL
+│   ├── cadastro.php         # Registro de usuários
+│   ├── login.php            # Autenticação
+│   ├── livros.php           # CRUD completo de livros
+│   └── upload.php           # Upload de capas de livros
+├── frontend/                 # Interface do usuário
+│   ├── config.js            # Configuração de URLs
+│   ├── inicial/             # Landing page
+│   ├── cadastro/            # Página de registro
+│   ├── login/               # Página de autenticação
+│   └── home/                # Dashboard principal
+├── uploads/                  # Armazenamento de imagens
+│   ├── .htaccess            # Configuração de MIME types
+│   ├── capa_padrao_1.svg    # Capa padrão marrom/laranja
+│   ├── capa_padrao_2.svg    # Capa padrão cinza escuro
+│   ├── capa_padrao_3.svg    # Capa padrão roxa fantasia
+│   └── capa_padrao_4.svg    # Capa padrão turquesa natureza
+├── .gitignore                # Arquivos ignorados pelo Git
+├── database.sql              # Script de criação do banco
+├── QUICKSTART.md             # Guia rápido de instalação
+├── README.md                 # Documentação completa
+├── start.bat                 # Script de inicialização (Windows)
+└── start.sh                  # Script de inicialização (Linux/macOS)
 ```
 
-## 🚀 Como Usar
+## 🚀 Instalação e Configuração
 
-### 1. Instalar Dependências do Backend
+### Pré-requisitos
+
+- **XAMPP/LAMPP** instalado (Apache + MySQL + PHP 8.0+)
+  - Windows: [Download XAMPP](https://www.apachefriends.org/)
+  - Linux: [Download LAMPP](https://www.apachefriends.org/download.html)
+
+### Passo 1: Instalar XAMPP/LAMPP
+
+#### Windows:
+1. Execute o instalador XAMPP
+2. Instale em `C:\xampp`
+3. Abra o XAMPP Control Panel
+4. Inicie os módulos **Apache** e **MySQL**
+
+#### Linux:
+```bash
+# Dar permissão de execução ao instalador
+chmod +x xampp-linux-*-installer.run
+
+# Executar instalador
+sudo ./xampp-linux-*-installer.run
+
+# Iniciar serviços
+sudo /opt/lampp/lampp start
+```
+
+### Passo 2: Clonar/Baixar o Projeto
+
+**Importante:** O repositório `home_scriba` JÁ É o projeto completo. Clone diretamente na pasta `scriba/`:
 
 ```bash
-cd backend
-npm install
-```
+# Linux
+cd /opt/lampp/htdocs
+mkdir -p scriba
+cd scriba
+git clone <seu-repositorio> .
 
-### 2. Iniciar o Servidor
+# Ou se preferir manter o nome home_scriba:
+cd /opt/lampp/htdocs/scriba
+git clone <seu-repositorio> home_scriba
+```
 
 ```bash
-npm start
+# Windows
+cd C:\xampp\htdocs
+mkdir scriba
+cd scriba
+git clone <seu-repositorio> .
+
+# Ou se preferir manter o nome home_scriba:
+cd C:\xampp\htdocs\scriba
+git clone <seu-repositorio> home_scriba
 ```
 
-Ou para desenvolvimento com auto-reload:
+**Estrutura final esperada:**
+- `/opt/lampp/htdocs/scriba/home_scriba/` (Linux) OU
+- `C:\xampp\htdocs\scriba\home_scriba\` (Windows)
+
+### Passo 3: Criar o Banco de Dados
+
+#### Opção 1: Via phpMyAdmin (Recomendado)
+1. Acesse http://localhost/phpmyadmin
+2. Clique em "Novo" para criar banco de dados
+3. Nome: `scriba_db`
+4. Collation: `utf8mb4_general_ci`
+5. Clique em "Criar"
+6. Na aba "SQL", execute o script database.sql (se quiser já com livros e usuário existentes deve remover as # de exemplo)
+
+#### Opção 2: Via Terminal MySQL
+```bash
+# Linux
+/opt/lampp/bin/mysql -u root
+
+# Windows (no prompt de comando)
+C:\xampp\mysql\bin\mysql.exe -u root
+```
+
+Depois execute:
+
+```sql
+CREATE DATABASE scriba_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE scriba_db;
+
+-- Tabela de usuários
+CREATE TABLE usuarios (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabela de livros
+CREATE TABLE livros (
+    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(11) NOT NULL,
+    titulo VARCHAR(200) NOT NULL,
+    autor VARCHAR(100) NOT NULL,
+    genre VARCHAR(100) DEFAULT NULL,
+    paginas INT(11) DEFAULT 0,
+    current_page INT(11) DEFAULT 0,
+    status VARCHAR(50) DEFAULT 'Quero Ler',
+    capa VARCHAR(255) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+```
+
+### Passo 4: Configurar URLs (se necessário)
+
+⚠️ **IMPORTANTE**: As URLs estão centralizadas no arquivo `frontend/config.js`
+
+Se você instalou em um caminho diferente de `/scriba`, edite APENAS dois arquivos:
+
+#### 1. Frontend Config (Principal)
+**Arquivo:** `frontend/config.js`
+```javascript
+const APP_CONFIG = {
+    BASE_URL: 'http://localhost/SEU_CAMINHO_AQUI',
+    // As demais URLs são geradas automaticamente
+};
+```
+
+#### 2. Upload PHP (Secundário)
+**Arquivo:** `api/upload.php` (linha ~55)
+```php
+$fileUrl = 'http://localhost/SEU_CAMINHO_AQUI/uploads/' . $newFileName;
+```
+
+💡 **Dica**: Se mantiver o caminho padrão, não precisa alterar nada!
+
+### Passo 5: Verificar Permissões (Linux/macOS)
 
 ```bash
-npm run dev
+# Dar permissão de escrita na pasta uploads
+sudo chmod -R 777 /opt/lampp/htdocs/scriba/home_scriba/uploads
 ```
 
-O servidor estará rodando em `http://localhost:3000`
+### Passo 6: Acessar a Aplicação
 
-### 3. Acessar a Aplicação
-
-Abra o navegador e acesse:
+Abra seu navegador e acesse:
 ```
-http://localhost:3000/inicial/index.html
+http://localhost/scriba/home_scriba/frontend/inicial/index.html
 ```
 
-## 🔐 Funcionalidades
+### Campos de Cadastro de Usuário
 
-### Autenticação
-- **Cadastro**: Nome, Usuário, Email e Senha com confirmação
-- **Login**: Autenticação por email e senha
-- **Logout**: Sair e retornar à página inicial
-- **Saudação Personalizada**: Dashboard exibe o primeiro nome do usuário logado
+Ao criar uma conta, os campos exigidos são:
+- Usuário (nome de usuário único)
+- Nome e Sobrenome
+- Email
+- Senha
 
-### 📚 Gerenciamento de Livros
-- **Adicionar Livros**: Título, autor, categoria, páginas totais, URL da capa e status inicial
-- **Editar Livros**: Clique em qualquer livro para atualizar dados
-- **Remover Livros**: Excluir livros da biblioteca
-- **Busca em Tempo Real**: Filtrar por título, autor ou categoria
-- **Filtros por Status**: Todos, Lendo, Lidos, Quero Ler (com contadores)
-- **Progresso de Leitura**: Barra visual mostrando página atual / total de páginas
+### ✅ Checklist de Instalação
+
+- [ ] XAMPP/LAMPP instalado e Apache + MySQL rodando
+- [ ] Projeto copiado para a pasta `htdocs`
+- [ ] Banco de dados `scriba_db` criado
+- [ ] Tabelas `usuarios` e `livros` criadas
+- [ ] Pasta `uploads` com permissão de escrita (Linux/macOS)
+- [ ] Aplicação acessível no navegador
+
+## ✨ Funcionalidades
+
+### 🔐 Autenticação e Segurança
+- Cadastro de usuários com validação de email
+- Login com autenticação por **email OU usuário** (aceita ambos no mesmo campo)
+- Logout com limpeza de sessão
+- Saudação personalizada no dashboard
+- Dados isolados por usuário (foreign key)
+
+### 📚 Gerenciamento Completo de Livros
+
+#### Adicionar Livros
+- Título, autor e gênero
+- Total de páginas
+- Status inicial (Quero Ler, Lendo, Lido)
+- Upload de capa personalizada (JPG/PNG, até 5MB)
+- 4 capas padrão SVG com alternância automática
+
+#### Visualização e Organização
+- Busca em tempo real por título, autor ou gênero
+- Filtros por status com contadores dinâmicos:
+  - 📚 Todos os livros
+  - 📖 Lendo
+  - ✅ Lidos
+  - 📌 Quero Ler
+- Cards com capa, título, autor, gênero e progresso
+- Mini barra de progresso visual em cada card
+
+#### Edição e Acompanhamento
+- **Modal de Visualização**: Detalhes completos do livro
+- **Modal de Progresso**: Atualizar páginas lidas e status
+- **Modal de Edição Completa**: Modificar todos os dados + trocar capa
+- Mudança automática para "Lido" ao completar todas as páginas
+- Persistência de gênero, status e progresso no banco
+
+#### Exclusão
+- Botão de remover com ícone de lixeira
+- Deleção em cascata (remove junto com o usuário)
 
 ### 🏠 Dashboard Inteligente
-- **Destaque do Último Livro**: Card destacado com o livro sendo lido ou atualizado recentemente
-- **Barra de Progresso**: Visualização do progresso de leitura em %
-- **Botão "Continuar Leitura"**: Acesso rápido ao modal de atualização
-- **Adicionados Recentemente**: Grid com últimos 4 livros (clicáveis)
 
-### 🎯 Metas de Leitura
-- **Criar Metas**: Definir objetivos (ex: "Ler 24 livros em 2025")
-- **Acompanhar Progresso**: Barra visual e porcentagem de conclusão
-- **Editar e Excluir**: Gerenciar metas existentes
+#### Seção "Em Destaque"
+- Card grande do último livro em andamento
+- Barra de progresso visual (%)
+- Botão "Continuar Leitura" para atualização rápida
+- Permite edição completa clicando no card
 
-### 📁 Listas e Coleções
-- **Criar Listas Personalizadas**: Organizar livros por temas
-- **Adicionar Livros às Listas**: Selecionar livros da biblioteca
-- **Remover Livros de Listas**: Ícone de lixeira com confirmação
-- **Contador de Livros**: Ver quantidade por lista
+#### Seção "Adicionados Recentemente"
+- Grid 2x2 com últimos 4 livros adicionados
+- Cards clicáveis para visualização
+- Exibe capa, título e autor
+- Sistema inteligente de capas padrão alternadas
 
-### 📜 Histórico
-- **Últimas Atualizações**: Livros ordenados por data de modificação
-- **Timestamp**: Data e hora da última alteração
-- **Acesso Rápido**: Clique para editar direto do histórico
+### 🎨 Sistema de Capas
 
-## 📝 API Endpoints
+#### Capas Padrão
+- 4 designs SVG únicos e elegantes:
+  1. **Capa 1**: Tom marrom/laranja (clássico)
+  2. **Capa 2**: Cinza escuro moderno
+  3. **Capa 3**: Roxa fantasia
+  4. **Capa 4**: Turquesa natureza
+- Atribuição sequencial automática
+- Seleção determinística por ID do livro
 
-### POST `/api/cadastro`
-Registra um novo usuário
+#### Upload Personalizado
+- Formatos aceitos: JPG, JPEG, PNG
+- Tamanho máximo: 5MB
+- Preview antes de salvar
+- Possibilidade de trocar capa posteriormente
+- Armazenamento na pasta `uploads/`
 
-**Body:**
-```json
-{
-  "nome": "João Silva",
-  "usuario": "joaosilva",
-  "email": "joao@email.com",
-  "senha": "senha123"
-}
+### 📊 Controle de Progresso de Leitura
+- Campo de página atual vs. total de páginas
+- Cálculo automático de porcentagem
+- Barra visual responsiva
+- Atualização de status inteligente
+- Persistência no banco de dados MySQL
+
+## 🔌 Documentação da API
+
+### Base URL
+```
+http://localhost/scriba/home_scriba/api
 ```
 
-### POST `/api/login`
-Autentica um usuário
-
-**Body:**
-```json
-{
-  "email": "joao@email.com",
-  "senha": "senha123"
-}
+### Configuração CORS
+Todas as APIs incluem:
+```php
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json");
 ```
 
-### GET `/api/usuarios`
-Lista todos os usuários cadastrados (apenas para debug)
+---
 
-## ⚠️ Observações Importantes
+## 🎨 Design e Interface
 
-- **Armazenamento Temporário**: Os dados estão sendo armazenados em memória (array). Quando o servidor reiniciar, todos os dados serão perdidos.
-- **Senha em Texto Puro**: As senhas NÃO estão sendo criptografadas.
-- **Sem JWT**: Autenticação básica usando localStorage.
-- **CORS Aberto**: CORS está configurado para aceitar qualquer origem.
+### Paleta de Cores
+- **Background Principal**: `#e8dec7` (Creme suave)
+- **Background Secundário**: `#1a222e` (Dark blue)
+- **Texto Primário**: `#1a222e` (Dark)
+- **Texto Secundário**: `#e8dec7` (Light)
+- **Accent**: `#d4af37` (Dourado)
+- **Bordas**: `rgba(26, 34, 46, 0.1)` (Transparente)
 
-## 🎨 Interface
+### Tipografia
+- **Títulos e Destaque**: Playfair Display (serif elegante)
+- **Corpo e UI**: Poppins (sans-serif moderna)
+- **Tamanhos**: 14px (corpo) a 48px (títulos principais)
 
-- Design minimalista com paleta creme (#e8dec7) e dark (#1a222e)
-- Tipografia elegante: Playfair Display (serifas) + Poppins (sans-serif)
-- Sidebar fixa com navegação intuitiva
-- Modais para adicionar/editar conteúdo
-- Animações suaves e transições fluidas
-- Cards clicáveis com hover effects
-- Badges de contagem nos filtros
-- Ícones Font Awesome 6.4
 
-## 💡 Recursos da Interface
+## 📚 Documentação Adicional
 
-### Página Inicial (Dashboard)
-- Saudação personalizada com nome do usuário
-- Card destacado do último livro sendo lido
-- Progresso visual com barra e porcentagem
-- Grid de "Adicionados Recentemente" (clicáveis)
+Este projeto inclui documentação abrangente para facilitar o uso:
 
-### Meus Livros
-- Busca instantânea por título/autor/categoria
-- Filtros com badges de contagem dinâmica
-- Cards com capa, título, autor, categoria e status
-- Mini barra de progresso em cada card
-- Botão de remover (ícone de lixeira)
-- Clique no card para editar
+- **[QUICKSTART.md](QUICKSTART.md)** - Guia rápido de instalação em 5 minutos
+- **[database.sql](database.sql)** - Script SQL pronto para executar
 
-### Listas
-- Cards de pasta com ícone e contador
-- Modal com seleção de livros disponíveis
-- Lista de livros com botão de remover
-- Editar nome da lista
+## 📄 Licença
 
-### Histórico
-- Ordenação por última atualização
-- Timestamp de modificação
-- Progresso de cada livro
-- Acesso direto ao modal de edição
+Este projeto é de código aberto para fins educacionais.
 
-## 🔜 Próximos Passos
+## 👨‍💻 Desenvolvedores
 
-- [ ] Implementar banco de dados.
+Arthur De Moraes e Diego Bourguignon Rangel
+
+---
+
+<div align="center"
+
+📚 Scriba - Organize suas leituras com estilo
+
+</div>
