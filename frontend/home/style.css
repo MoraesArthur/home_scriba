@@ -268,3 +268,34 @@ body {
     color: #666;
     font-weight: 500;
 }
+
+/* --- Modal de Visualização (Somente Leitura) --- */
+.view-book-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+}
+.view-book-cover-container {
+    text-align: center;
+}
+.view-book-info {
+    text-align: center;
+    width: 100%;
+}
+.view-book-details {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: var(--color-input-bg);
+    border-radius: 8px;
+    text-align: left;
+}
+.view-book-details p {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: var(--color-text-dark);
+}
+.view-book-details p:last-child {
+    margin-bottom: 0;
+}

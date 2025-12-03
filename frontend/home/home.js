@@ -1,11 +1,10 @@
 // --- 1. LÓGICA DE AUTENTICAÇÃO ---
 const user = JSON.parse(localStorage.getItem('user'));
 if (!user) {
-    // window.location.href = '../inicial/index.html';
-    console.warn("Usuário não logado.");
+    window.location.href = '../inicial/index.html';
 }
 
-// --- DADOS SIMULADOS (MOCK DB) ---
+// --- DADOS DA APLICAÇÃO ---
 let myLibrary = [];
 
 let myGoals = [];
@@ -13,7 +12,46 @@ let myGoals = [];
 // LISTAS agora guardam IDs dos livros
 let myLists = [];
 
-document.addEventListener('DOMContentLoaded', () => {
+// Função para carregar livros do banco
+async function loadBooksFromDB() {
+    if (!user || !user.id) return;
+
+    try {
+        const response = await fetch(`http://localhost/scriba/home_scriba/api/livros.php?user_id=${user.id}`);
+        const data = await response.json();
+
+        if (data.success && data.livros) {
+            myLibrary = data.livros.map(livro => {
+                const sanitizedCover = (livro.capa || '').replace(/\\/g, '');
+                const defaultCovers = [
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg',
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_2.svg',
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_3.svg',
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_4.svg'
+                ];
+                const deterministicDefault = defaultCovers[(Number(livro.id) - 1) % defaultCovers.length];
+                return {
+                    id: livro.id,
+                    title: livro.titulo,
+                    author: livro.autor,
+                    genre: livro.genre || '',
+                    status: livro.status || 'Quero Ler',
+                    cover: sanitizedCover || deterministicDefault,
+                    totalPages: livro.paginas || 0,
+                    currentPage: livro.current_page || 0,
+                    lastUpdated: livro.created_at
+                };
+            });
+        }
+    } catch (error) {
+        // Silenciosamente falha se não conseguir carregar
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+
+    // Carregar livros do banco
+    await loadBooksFromDB();
 
     // A. Preencher dados do usuário
     if (user) {
@@ -110,11 +148,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (lastReading) {
                 const hasPages = (lastReading.totalPages || 0) > 0;
                 const percentage = hasPages ? Math.min(100, Math.round((lastReading.currentPage / lastReading.totalPages) * 100)) : 0;
+                // Fallback de capa se a imagem não carregar
+                const defaultCovers = [
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg',
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_2.svg',
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_3.svg',
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_4.svg'
+                ];
+                const safeHeroCover = lastReading.cover || defaultCovers[Math.floor(Math.random() * defaultCovers.length)];
                 heroHTML = `
                     <div class="dashboard-card hero-card" style="margin-bottom: 25px;">
                         <div class="card-content-wrapper">
                             <div class="book-cover-placeholder">
-                                <img src="${lastReading.cover}" alt="Capa">
+                                <img src="${safeHeroCover}" alt="Capa" onerror="this.onerror=null; this.src='http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg';">
                             </div>
                             <div class="book-details">
                                 <span class="status-tag">${lastReading.status === 'Lido' ? 'Concluído' : 'Lendo Atualmente'}</span>
@@ -141,9 +187,20 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mostra últimos 4 livros adicionados
             const recentBooks = myLibrary.slice(-4).reverse();
             let cardsHTML = '';
+            const defaultCovers = [
+                'http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg',
+                'http://localhost/scriba/home_scriba/uploads/capa_padrao_2.svg',
+                'http://localhost/scriba/home_scriba/uploads/capa_padrao_3.svg',
+                'http://localhost/scriba/home_scriba/uploads/capa_padrao_4.svg'
+            ];
             recentBooks.forEach(book => {
+                const sanitizedCover = (book.cover || '').replace(/\\/g, '');
+                const deterministicDefault = defaultCovers[(Number(book.id) - 1) % defaultCovers.length];
+                const safeCover = sanitizedCover || deterministicDefault;
                 cardsHTML += `
-                    <div class="mini-book-card" style="background-image: url('${book.cover}'); background-size: cover; background-position: center; cursor: pointer;" onclick="openEditBookModal(${book.id})" title="${book.title}"></div>
+                    <div class="mini-book-card" style="cursor: pointer; position: relative; overflow: hidden; display: block;" onclick="openViewBookModal(${book.id})" title="${book.title}">
+                        <img src="${safeCover}" alt="${book.title}" style="width: 100%; height: 100%; object-fit: cover; display: block;" onerror="this.src='http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg';">
+                    </div>
                 `;
             });
 
@@ -223,23 +280,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }
 
+            const defaultCovers = [
+                'http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg',
+                'http://localhost/scriba/home_scriba/uploads/capa_padrao_2.svg',
+                'http://localhost/scriba/home_scriba/uploads/capa_padrao_3.svg',
+                'http://localhost/scriba/home_scriba/uploads/capa_padrao_4.svg'
+            ];
+            const deterministicDefault = defaultCovers[(Number(book.id) - 1) % defaultCovers.length];
+            const safeListCover = book.cover || deterministicDefault;
             card.innerHTML = `
-                <img src="${book.cover}" class="list-cover" alt="${book.title}">
+                <img src="${safeListCover}" class="list-cover" alt="${book.title}" onerror="this.onerror=null; this.src='http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg';">
                 <div class="list-info">
                     <h3 class="list-title">${book.title}</h3>
                     <p class="list-author">${book.author}</p>
                     <div class="list-meta">
-                        <span class="badge badge-genre">${book.genre}</span>
+                        ${book.genre ? `<span class="badge badge-genre">${book.genre}</span>` : ''}
                         <span class="badge badge-status">${book.status}</span>
                     </div>
                     ${progressHTML}
                 </div>
+                <button class="btn-icon edit" onclick="event.stopPropagation(); openEditBookFullModal(${book.id})" title="Editar livro" style="right: 60px;">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
                 <button class="btn-icon delete" onclick="event.stopPropagation(); deleteBook(${book.id})" title="Remover livro">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             `;
 
-            // Adiciona clique no card para editar
+            // Adiciona clique no card para abrir modal de progresso
             card.style.cursor = 'pointer';
             card.addEventListener('click', () => openEditBookModal(book.id));
 
@@ -352,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h3 class="list-title">${book.title}</h3>
                     <p class="list-author">${book.author}</p>
                     <div class="list-meta">
-                        <span class="badge badge-genre">${book.genre}</span>
+                        ${book.genre ? `<span class="badge badge-genre">${book.genre}</span>` : ''}
                         <span class="badge badge-status">${book.status}</span>
                     </div>
                     ${progressHTML}
@@ -447,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3 class="list-title">${book.title}</h3>
                         <p class="list-author">${book.author}</p>
                         <div class="list-meta">
-                            <span class="badge badge-genre">${book.genre}</span>
+                            ${book.genre ? `<span class="badge badge-genre">${book.genre}</span>` : ''}
                             <span class="badge badge-status">${book.status}</span>
                         </div>
                         ${progressHTML}
@@ -581,6 +649,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Abrir Modal de Visualização do Livro (Somente Leitura)
+    window.openViewBookModal = function(bookId) {
+        const book = myLibrary.find(b => b.id === bookId);
+        if (!book) return;
+
+        const defaultCovers = [
+            'http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg',
+            'http://localhost/scriba/home_scriba/uploads/capa_padrao_2.svg',
+            'http://localhost/scriba/home_scriba/uploads/capa_padrao_3.svg',
+            'http://localhost/scriba/home_scriba/uploads/capa_padrao_4.svg'
+        ];
+        const sanitizedCover = (book.cover || '').replace(/\\/g, '');
+        const deterministicDefault = defaultCovers[(Number(book.id) - 1) % defaultCovers.length];
+        const safeCover = sanitizedCover || deterministicDefault;
+
+        const coverImg = document.getElementById('viewBookCover');
+        coverImg.src = safeCover;
+        coverImg.onerror = function() {
+            this.onerror = null;
+            this.src = 'http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg';
+        };
+
+        document.getElementById('viewBookTitle').textContent = book.title;
+        document.getElementById('viewBookAuthor').textContent = book.author;
+        document.getElementById('viewBookPages').textContent = book.totalPages > 0 ? `${book.totalPages} páginas` : 'Não definido';
+        document.getElementById('viewBookStatus').textContent = book.status;
+
+        document.getElementById('viewBookModalOverlay').classList.remove('hidden');
+    };
+
     // Abrir Modal de Edição do Livro
     window.openEditBookModal = function(bookId) {
         const book = myLibrary.find(b => b.id === bookId);
@@ -612,17 +710,35 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('updateModalOverlay').classList.remove('hidden');
     };
 
-    window.deleteBook = function(id) {
+    window.deleteBook = async function(id) {
         if(confirm("Tem certeza que deseja excluir este livro?")) {
-            myLibrary = myLibrary.filter(b => b.id !== id);
-            // Remove o livro de todas as listas
-            myLists.forEach(list => {
-                list.books = list.books.filter(bookId => bookId !== id);
-            });
-            updateHomeSection(); // Atualiza a home
-            renderLibrary(); // Atualiza a biblioteca
-            renderLists(); // Atualiza as listas
-            updateFilterCounts();
+            try {
+                const response = await fetch('http://localhost/scriba/home_scriba/api/livros.php', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${id}`
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    myLibrary = myLibrary.filter(b => b.id !== id);
+                    // Remove o livro de todas as listas
+                    myLists.forEach(list => {
+                        list.books = list.books.filter(bookId => bookId !== id);
+                    });
+                    updateHomeSection(); // Atualiza a home
+                    renderLibrary(); // Atualiza a biblioteca
+                    renderLists(); // Atualiza as listas
+                    updateFilterCounts();
+                } else {
+                    alert('Erro ao deletar livro: ' + data.message);
+                }
+            } catch (error) {
+                alert('Erro ao conectar com o servidor');
+            }
         }
     };
     window.deleteGoal = function(id) {
@@ -706,6 +822,14 @@ document.addEventListener('DOMContentLoaded', () => {
         listDetailsModal.onclick = (e) => { if(e.target === listDetailsModal) listDetailsModal.classList.add('hidden'); };
     }
 
+    // Setup manual para o Modal de Visualização (somente leitura)
+    const viewBookModal = document.getElementById('viewBookModalOverlay');
+    const closeViewBookBtn = document.getElementById('closeViewBookModalBtn');
+    if(closeViewBookBtn && viewBookModal) {
+        closeViewBookBtn.addEventListener('click', () => viewBookModal.classList.add('hidden'));
+        viewBookModal.addEventListener('click', (e) => { if(e.target === viewBookModal) viewBookModal.classList.add('hidden'); });
+    }
+
 
     // --- FORMS SUBMIT ---
     const goalForm = document.getElementById('goalForm');
@@ -760,7 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Formulário de Atualizar Progresso
     const updateProgressForm = document.getElementById('formUpdateProgress');
     if (updateProgressForm) {
-        updateProgressForm.addEventListener('submit', (e) => {
+        updateProgressForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const bookId = parseInt(updateProgressForm.dataset.bookId);
@@ -769,23 +893,71 @@ document.addEventListener('DOMContentLoaded', () => {
             if (book) {
                 const newPage = parseInt(document.getElementById('inputCurrentPage').value) || 0;
                 const activeStatusBtn = updateProgressForm.querySelector('.status-btn.active');
-                const newStatus = activeStatusBtn ? activeStatusBtn.getAttribute('data-status') : book.status;
+                let newStatus = activeStatusBtn ? activeStatusBtn.getAttribute('data-status') : book.status;
 
-                book.currentPage = newPage;
-                book.status = newStatus;
-                book.lastUpdated = new Date().toISOString();
-
-                // Se concluiu, marca as páginas como total
-                if (newStatus === 'Lido' && book.totalPages > 0) {
-                    book.currentPage = book.totalPages;
+                // Se completou todas as páginas, muda automaticamente para "Lido"
+                if (book.totalPages > 0 && newPage >= book.totalPages) {
+                    newStatus = 'Lido';
                 }
 
-                document.getElementById('updateModalOverlay').classList.add('hidden');
-                updateHomeSection();
-                renderLibrary();
-                renderHistory();
-                updateFilterCounts();
-                alert('Progresso atualizado com sucesso!');
+                // Se concluiu, marca as páginas como total
+                const finalPage = (newStatus === 'Lido' && book.totalPages > 0) ? book.totalPages : newPage;
+
+                // Atualiza no banco
+                try {
+                    const formData = new FormData();
+                    formData.append('id', bookId);
+                    formData.append('titulo', book.title);
+                    formData.append('autor', book.author);
+                    formData.append('genre', book.genre || '');
+                    formData.append('paginas', book.totalPages);
+                    formData.append('current_page', finalPage);
+                    formData.append('status', newStatus);
+                    formData.append('capa', book.cover);
+
+                    const response = await fetch('http://localhost/scriba/home_scriba/api/livros.php', {
+                        method: 'PUT',
+                        body: new URLSearchParams(formData)
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        book.currentPage = finalPage;
+                        book.status = newStatus;
+                        book.lastUpdated = new Date().toISOString();
+
+                        document.getElementById('updateModalOverlay').classList.add('hidden');
+                        updateHomeSection();
+                        renderLibrary();
+                        renderHistory();
+                        updateFilterCounts();
+                        alert('Progresso atualizado com sucesso!');
+                    } else {
+                        alert('Erro ao atualizar: ' + data.message);
+                    }
+                } catch (error) {
+                    alert('Erro ao conectar com o servidor');
+                }
+            }
+        });
+    }
+
+    // Preview de imagem ao selecionar arquivo
+    const coverInput = document.getElementById('inputCover');
+    const capaPreview = document.getElementById('capaPreview');
+
+    if (coverInput && capaPreview) {
+        coverInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    capaPreview.innerHTML = `<img src="${e.target.result}" style="max-width: 150px; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                capaPreview.innerHTML = '';
             }
         });
     }
@@ -793,38 +965,237 @@ document.addEventListener('DOMContentLoaded', () => {
     // Formulário de Adicionar Livro
     const addBookForm = document.querySelector('#modalOverlay form');
     if (addBookForm) {
-        addBookForm.addEventListener('submit', (e) => {
+        addBookForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const title = document.getElementById('inputTitulo').value;
             const author = document.getElementById('inputAutor').value;
             const genre = document.getElementById('inputCategoria').value;
             const totalPages = parseInt(document.getElementById('inputPaginas').value) || 0;
-            const cover = document.getElementById('inputCover')?.value || 'https://via.placeholder.com/300x450?text=Sem+Capa';
+            const coverFile = document.getElementById('inputCover')?.files[0];
 
             // Pega o status do botão ativo (se tiver essa funcionalidade)
             const activeStatusBtn = addBookForm.querySelector('.status-btn.active');
             const status = activeStatusBtn ? activeStatusBtn.getAttribute('data-status') : 'Quero Ler';
 
-            const newId = myLibrary.length ? Math.max(...myLibrary.map(b => b.id)) + 1 : 1;
+            try {
+                // Escolhe uma capa padrão de forma sequencial para garantir variedade
+                const capasPadrao = [
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg',
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_2.svg',
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_3.svg',
+                    'http://localhost/scriba/home_scriba/uploads/capa_padrao_4.svg'
+                ];
+                const nextIndex = myLibrary.length % capasPadrao.length;
+                let coverUrl = capasPadrao[nextIndex];
 
-            myLibrary.push({
-                id: newId,
-                title: title,
-                author: author,
-                genre: genre,
-                status: status,
-                cover: cover,
-                totalPages: totalPages,
-                currentPage: 0,
-                lastUpdated: new Date().toISOString()
-            });
+                // Se o usuário selecionou uma imagem, faz o upload primeiro
+                if (coverFile) {
+                    const uploadFormData = new FormData();
+                    uploadFormData.append('capa', coverFile);
 
-            document.getElementById('modalOverlay').classList.add('hidden');
-            addBookForm.reset();
-            updateHomeSection(); // Atualiza a home
-            renderLibrary(); // Atualiza a biblioteca se estiver visível
-            alert('Livro adicionado com sucesso!');
+                    const uploadResponse = await fetch('http://localhost/scriba/home_scriba/api/upload.php', {
+                        method: 'POST',
+                        body: uploadFormData
+                    });
+
+                    const uploadData = await uploadResponse.json();
+
+                    if (uploadData.success) {
+                        coverUrl = uploadData.url;
+                    } else {
+                        alert('Erro ao fazer upload da capa: ' + uploadData.message);
+                        return;
+                    }
+                }
+
+                // Agora adiciona o livro com a URL da capa
+                const formData = new FormData();
+                formData.append('user_id', user.id);
+                formData.append('titulo', title);
+                formData.append('autor', author);
+                formData.append('genre', genre);
+                formData.append('paginas', totalPages);
+                formData.append('status', status);
+                formData.append('capa', coverUrl);
+
+                const response = await fetch('http://localhost/scriba/home_scriba/api/livros.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Adiciona ao array local também
+                    myLibrary.push({
+                        id: data.livro.id,
+                        title: title,
+                        author: author,
+                        genre: genre,
+                        status: status,
+                        cover: coverUrl,
+                        totalPages: totalPages,
+                        currentPage: 0,
+                        lastUpdated: new Date().toISOString()
+                    });
+
+                    document.getElementById('modalOverlay').classList.add('hidden');
+                    addBookForm.reset();
+                    if (capaPreview) capaPreview.innerHTML = ''; // Limpa o preview
+                    updateHomeSection(); // Atualiza a home
+                    renderLibrary(); // Atualiza a biblioteca se estiver visível
+                    alert('Livro adicionado com sucesso!');
+                } else {
+                    alert(data.message || 'Erro ao adicionar livro');
+                }
+            } catch (error) {
+                alert('Erro ao conectar com o servidor');
+            }
         });
     }
+
+    // Modal de Edição Completa do Livro
+    const closeEditBookModalBtn = document.getElementById('closeEditBookModalBtn');
+    const editBookModalOverlay = document.getElementById('editBookModalOverlay');
+    const editCoverInput = document.getElementById('editCover');
+    const editCapaPreview = document.getElementById('editCapaPreview');
+
+    if (closeEditBookModalBtn) {
+        closeEditBookModalBtn.addEventListener('click', () => {
+            editBookModalOverlay.classList.add('hidden');
+        });
+    }
+
+    // Preview de capa ao editar
+    if (editCoverInput && editCapaPreview) {
+        editCoverInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    editCapaPreview.innerHTML = `<img src="${e.target.result}" style="max-width: 150px; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                editCapaPreview.innerHTML = '';
+            }
+        });
+    }
+
+    // Função para abrir modal de edição completa
+    window.openEditBookFullModal = function(bookId) {
+        const book = myLibrary.find(b => b.id === bookId);
+        if (!book) return;
+
+        // Define capas padrão e sanitiza a URL da capa atual (remove barras invertidas do JSON)
+        const defaultCovers = [
+            'http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg',
+            'http://localhost/scriba/home_scriba/uploads/capa_padrao_2.svg',
+            'http://localhost/scriba/home_scriba/uploads/capa_padrao_3.svg',
+            'http://localhost/scriba/home_scriba/uploads/capa_padrao_4.svg'
+        ];
+        const sanitizedCover = (book.cover || '').replace(/\\/g, '');
+        const deterministicDefault = defaultCovers[(Number(book.id) - 1) % defaultCovers.length];
+        const currentCover = sanitizedCover || deterministicDefault;
+
+        document.getElementById('editTitulo').value = book.title;
+        document.getElementById('editAutor').value = book.author;
+        document.getElementById('editCategoria').value = book.genre || '';
+        document.getElementById('editPaginas').value = book.totalPages || '';
+
+        // Mostra capa atual com fallback seguro
+        editCapaPreview.innerHTML = `
+            <p style="color: #888; font-size: 0.9rem; margin-bottom: 10px;">Capa atual:</p>
+            <img src="${currentCover}" onerror="this.onerror=null; this.src='http://localhost/scriba/home_scriba/uploads/capa_padrao_1.svg';" style="max-width: 150px; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        `;
+
+        document.getElementById('formEditBook').dataset.bookId = bookId;
+        editBookModalOverlay.classList.remove('hidden');
+    };
+
+    // Submit do formulário de edição
+    const formEditBook = document.getElementById('formEditBook');
+    if (formEditBook) {
+        formEditBook.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const bookId = parseInt(formEditBook.dataset.bookId);
+            const book = myLibrary.find(b => b.id === bookId);
+            if (!book) return;
+
+            const title = document.getElementById('editTitulo').value;
+            const author = document.getElementById('editAutor').value;
+            const genre = document.getElementById('editCategoria').value;
+            const totalPages = parseInt(document.getElementById('editPaginas').value) || 0;
+            const coverFile = editCoverInput.files[0];
+
+            try {
+                let coverUrl = book.cover; // Mantém a capa atual por padrão
+
+                // Se selecionou nova imagem, faz upload
+                if (coverFile) {
+                    const uploadFormData = new FormData();
+                    uploadFormData.append('capa', coverFile);
+
+                    const uploadResponse = await fetch('http://localhost/scriba/home_scriba/api/upload.php', {
+                        method: 'POST',
+                        body: uploadFormData
+                    });
+
+                    const uploadData = await uploadResponse.json();
+
+                    if (uploadData.success) {
+                        coverUrl = uploadData.url;
+                    } else {
+                        alert('Erro ao fazer upload da capa: ' + uploadData.message);
+                        return;
+                    }
+                }
+
+                // Atualiza o livro na API
+                const formData = new FormData();
+                formData.append('id', bookId);
+                formData.append('titulo', title);
+                formData.append('autor', author);
+                formData.append('genre', genre);
+                formData.append('paginas', totalPages);
+                formData.append('current_page', book.currentPage);
+                formData.append('status', book.status);
+                formData.append('capa', coverUrl);
+
+                const response = await fetch('http://localhost/scriba/home_scriba/api/livros.php', {
+                    method: 'PUT',
+                    body: new URLSearchParams(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Atualiza o array local
+                    book.title = title;
+                    book.author = author;
+                    book.genre = genre;
+                    book.totalPages = totalPages;
+                    book.cover = coverUrl;
+                    book.lastUpdated = new Date().toISOString();
+
+                    editBookModalOverlay.classList.add('hidden');
+                    formEditBook.reset();
+                    editCapaPreview.innerHTML = '';
+                    updateHomeSection();
+                    renderLibrary();
+                    alert('Livro atualizado com sucesso!');
+                } else {
+                    alert('Erro ao atualizar livro: ' + data.message);
+                }
+            } catch (error) {
+                alert('Erro ao conectar com o servidor');
+            }
+        });
+    }
+
+    // Após definir todas as funções e handlers, renderiza com dados carregados
+    updateHomeSection();
+    renderLibrary();
 });
