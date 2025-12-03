@@ -1,0 +1,39 @@
+<svg width="300" height="450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8E44AD;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9B59B6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Capa principal -->
+  <rect width="300" height="450" fill="url(#grad3)"/>
+
+  <!-- Padrão de estrelas -->
+  <circle cx="80" cy="80" r="3" fill="#E8E8E8" opacity="0.6"/>
+  <circle cx="220" cy="100" r="2" fill="#E8E8E8" opacity="0.5"/>
+  <circle cx="150" cy="120" r="4" fill="#E8E8E8" opacity="0.7"/>
+  <circle cx="200" cy="350" r="3" fill="#E8E8E8" opacity="0.6"/>
+  <circle cx="100" cy="380" r="2" fill="#E8E8E8" opacity="0.5"/>
+  <circle cx="70" cy="320" r="3" fill="#E8E8E8" opacity="0.6"/>
+
+  <!-- Moldura mágica -->
+  <path d="M 60 180 Q 150 160 240 180 L 240 290 Q 150 310 60 290 Z"
+        fill="none" stroke="#E8E8E8" stroke-width="2" opacity="0.5"/>
+
+  <!-- Símbolo mágico -->
+  <circle cx="150" cy="235" r="40" fill="none" stroke="#E8E8E8" stroke-width="2" opacity="0.6"/>
+  <path d="M 150 205 L 155 230 L 180 235 L 155 240 L 150 265 L 145 240 L 120 235 L 145 230 Z"
+        fill="#E8E8E8" opacity="0.5"/>
+
+  <!-- Texto -->
+  <text x="150" y="350" font-family="'Playfair Display', serif" font-size="22"
+        fill="#E8E8E8" text-anchor="middle" font-style="italic" font-weight="500">
+    Fantasia
+  </text>
+
+  <text x="150" y="380" font-family="'Playfair Display', serif" font-size="14"
+        fill="#E8E8E8" text-anchor="middle" opacity="0.7">
+    Aventura &amp; Magia
+  </text>
+</svg>
