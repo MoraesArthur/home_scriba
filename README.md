@@ -77,10 +77,6 @@ cd /opt/lampp/htdocs
 mkdir -p scriba
 cd scriba
 git clone <seu-repositorio> .
-
-# Ou se preferir manter o nome home_scriba:
-cd /opt/lampp/htdocs/scriba
-git clone <seu-repositorio> home_scriba
 ```
 
 ```bash
@@ -90,10 +86,6 @@ mkdir scriba
 cd scriba
 git clone <seu-repositorio> .
 
-# Ou se preferir manter o nome home_scriba:
-cd C:\xampp\htdocs\scriba
-git clone <seu-repositorio> home_scriba
-```
 
 **Estrutura final esperada:**
 - `/opt/lampp/htdocs/scriba/home_scriba/` (Linux) OU
@@ -109,45 +101,6 @@ git clone <seu-repositorio> home_scriba
 5. Clique em "Criar"
 6. Na aba "SQL", execute o script database.sql (se quiser já com livros e usuário existentes deve remover as # de exemplo)
 
-#### Opção 2: Via Terminal MySQL
-```bash
-# Linux
-/opt/lampp/bin/mysql -u root
-
-# Windows (no prompt de comando)
-C:\xampp\mysql\bin\mysql.exe -u root
-```
-
-Depois execute:
-
-```sql
-CREATE DATABASE scriba_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE scriba_db;
-
--- Tabela de usuários
-CREATE TABLE usuarios (
-    id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Tabela de livros
-CREATE TABLE livros (
-    id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    user_id INT(11) NOT NULL,
-    titulo VARCHAR(200) NOT NULL,
-    autor VARCHAR(100) NOT NULL,
-    genre VARCHAR(100) DEFAULT NULL,
-    paginas INT(11) DEFAULT 0,
-    current_page INT(11) DEFAULT 0,
-    status VARCHAR(50) DEFAULT 'Quero Ler',
-    capa VARCHAR(255) DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES usuarios(id) ON DELETE CASCADE
-);
-```
 
 ### Passo 4: Configurar URLs (se necessário)
 
