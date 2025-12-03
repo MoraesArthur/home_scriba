@@ -85,7 +85,7 @@ cd C:\xampp\htdocs
 mkdir scriba
 cd scriba
 git clone <seu-repositorio> .
-
+```
 
 **Estrutura final esperada:**
 - `/opt/lampp/htdocs/scriba/home_scriba/` (Linux) OU
