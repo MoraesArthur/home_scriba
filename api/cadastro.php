@@ -23,6 +23,7 @@ if (!$usuario || !$nome || !$email || !$senha) {
     exit;
 }
 
+// Verificar se email ou usuário já existem
 $stmt = $conn->prepare("SELECT id FROM usuarios WHERE email = ? OR usuario = ?");
 $stmt->bind_param("ss", $email, $usuario);
 $stmt->execute();
@@ -36,6 +37,10 @@ if ($stmt->num_rows > 0) {
     exit;
 }
 
+// Criar hash da senha
+$senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+
+// Inserir novo usuário
 $stmt = $conn->prepare("INSERT INTO usuarios (usuario, nome, email, senha) VALUES (?, ?, ?, ?)");
 if (!$stmt) {
     echo json_encode([
@@ -44,7 +49,9 @@ if (!$stmt) {
     ]);
     exit;
 }
-$stmt->bind_param("ssss", $usuario, $nome, $email, $senha);
+
+$stmt->bind_param("ssss", $usuario, $nome, $email, $senha_hash);
+
 if (!$stmt->execute()) {
     echo json_encode([
         'success' => false,
