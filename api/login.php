@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require 'db.php';
 
-// Permitir login com email OU usuario (nome de usuário)
+// Permitir login com email OU usuário
 $identifier = $_POST['identifier'] ?? ($_POST['email'] ?? '');
 $senha = $_POST['senha'] ?? '';
 
@@ -22,20 +22,34 @@ if (!$identifier || !$senha) {
     exit;
 }
 
-$stmt = $conn->prepare("SELECT id, usuario, nome, email FROM usuarios WHERE (email = ? OR usuario = ?) AND senha = ?");
-$stmt->bind_param("sss", $identifier, $identifier, $senha);
+// Buscar usuário apenas por email/usuario (sem testar senha aqui!)
+$stmt = $conn->prepare("SELECT id, usuario, nome, email, senha FROM usuarios WHERE email = ? OR usuario = ?");
+$stmt->bind_param("ss", $identifier, $identifier);
 $stmt->execute();
+
 $result = $stmt->get_result();
 
-if ($result->num_rows == 0) {
+if ($result->num_rows === 0) {
     echo json_encode([
         'success' => false,
-        'message' => 'Email ou senha incorretos'
+        'message' => 'Usuário não encontrado'
     ]);
     exit;
 }
 
 $user = $result->fetch_assoc();
+
+// Verificar a senha
+if (!password_verify($senha, $user['senha'])) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Senha incorreta'
+    ]);
+    exit;
+}
+
+// Remover a senha do retorno
+unset($user['senha']);
 
 echo json_encode([
     'success' => true,
