@@ -35,8 +35,6 @@ home_scriba/
 ├── database.sql              # Script de criação do banco
 ├── QUICKSTART.md             # Guia rápido de instalação
 ├── README.md                 # Documentação completa
-├── start.bat                 # Script de inicialização (Windows)
-└── start.sh                  # Script de inicialização (Linux/macOS)
 ```
 
 ## 🚀 Instalação e Configuração
